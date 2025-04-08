@@ -74,6 +74,9 @@ dmypy.json
 terraform.tfstate
 terraform.tfstate.backup
 *.tfvars # Often contain sensitive variables, commit .tfvars.example instead
+terraform/set_env.sh
+terraform.tfvars
+
 
 # AWS CDK output (if using CDK)
 cdk.out/
