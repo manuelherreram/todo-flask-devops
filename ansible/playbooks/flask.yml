@@ -7,11 +7,11 @@
     app_dir: /home/ubuntu/flaskapp
 
   tasks:
-    - name: Update apt
+    - name: Update apt package index
       apt:
         update_cache: yes
 
-    - name: Install required packages
+    - name: Install essential system packages
       apt:
         name:
           - python3-pip
@@ -19,18 +19,27 @@
           - git
         state: present
 
-    - name: Clone Flask App Repo
+    - name: Install system dependencies for mysqlclient
+      apt:
+        name:
+          - build-essential
+          - pkg-config
+          - libmysqlclient-dev
+          - python3-dev
+        state: present
+
+    - name: Clone Flask App Repository
       git:
-        repo: https://github.com/YOUR_USERNAME/todo-flask-app.git
+        repo: https://github.com/manuelherreram/todo-flask-devops.git
         dest: "{{ app_dir }}"
         version: main
 
-    - name: Set up virtual environment
+    - name: Set up Python virtual environment
       command: python3 -m venv venv
       args:
         chdir: "{{ app_dir }}"
 
-    - name: Install Python dependencies
+    - name: Install Python dependencies from requirements.txt
       pip:
         requirements: "{{ app_dir }}/requirements.txt"
         virtualenv: "{{ app_dir }}/venv"
@@ -40,4 +49,4 @@
         src: "../roles/flask/templates/.env.j2"
         dest: "{{ app_dir }}/.env"
         owner: ubuntu
-        mode: 0600
+        mode: "0600"
