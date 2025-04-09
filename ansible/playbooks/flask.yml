@@ -1,0 +1,43 @@
+---
+- name: Configure Flask App Server
+  hosts: flask_app
+  become: yes
+
+  vars:
+    app_dir: /home/ubuntu/flaskapp
+
+  tasks:
+    - name: Update apt
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - python3-pip
+          - python3-venv
+          - git
+        state: present
+
+    - name: Clone Flask App Repo
+      git:
+        repo: https://github.com/YOUR_USERNAME/todo-flask-app.git
+        dest: "{{ app_dir }}"
+        version: main
+
+    - name: Set up virtual environment
+      command: python3 -m venv venv
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
+
+    - name: Copy .env file from template
+      template:
+        src: "../roles/flask/templates/.env.j2"
+        dest: "{{ app_dir }}/.env"
+        owner: ubuntu
+        mode: 0600
