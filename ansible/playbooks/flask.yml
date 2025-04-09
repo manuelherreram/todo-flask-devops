@@ -50,3 +50,35 @@
         dest: "{{ app_dir }}/.env"
         owner: ubuntu
         mode: "0600"
+
+    - name: Create systemd service for Gunicorn
+      copy:
+        dest: /etc/systemd/system/flaskapp.service
+        content: |
+          [Unit]
+          Description=Gunicorn service for Flask To-Do App
+          After=network.target
+
+          [Service]
+          User=ubuntu
+          WorkingDirectory={{ app_dir }}
+          EnvironmentFile={{ app_dir }}/.env
+          ExecStart={{ app_dir }}/venv/bin/gunicorn -b 0.0.0.0:5000 run:app
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - Reload systemd
+        - Start flaskapp
+
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Start flaskapp
+      systemd:
+        name: flaskapp
+        enabled: yes
+        state: started
